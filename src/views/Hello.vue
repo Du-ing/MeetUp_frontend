@@ -1,40 +1,30 @@
 <template>
-    <div class="user-center-wrapper clear-fix">
-      <el-card shadow="always" :body-style="{padding: '50px'}">
-        <div class="user-avatar">
-          <img :src="userInfo.img" alt="avatar">
-        </div>
-        <ul class="user-info">
-          <li>
-            <label>用户名：</label>
-            <span>{{ userInfo.username }}</span>
-          </li>
-          <li>
-            <label>角色：</label>
-            <span>{{ userInfo.roles }}</span>
-          </li>
-          <li>
-            <label>昵称：</label>
-            <span>{{ userInfo.nickname }}</span>
-          </li>
-          <li>
-            <label>电话号码：</label>
-            <span>{{ userInfo.phone }}</span>
-          </li>
-          <li>
-            <label>邮箱：</label>
-            <span>{{ userInfo.email }}</span>
-          </li>
-          <li>
-            <label>创建时间：</label>
-            <span>{{ userInfo.createtime }}</span>
-          </li>
-          <li>
-            <label>更新时间：</label>
-            <span>{{ userInfo.updatetime }}</span>
-          </li>
-        </ul>
-      </el-card>
+    <div class="hello">
+        <el-container>
+            <el-header>
+                <el-menu
+                :default-active="activeIndex"
+                class="el-menu-demo"
+                mode="horizontal"
+                @select="handleSelect"
+                background-color="#545c64"
+                text-color="#fff"
+                active-text-color="#ffd04b">
+                    <el-menu-item index="1"><a @click="to_login" target="_blank">注册</a></el-menu-item>
+                    <el-menu-item index="2"><a @click="to_login" target="_blank">登陆</a></el-menu-item>    
+                </el-menu>
+            </el-header>
+            <el-main class="el-main">
+                <el-image
+                    style="width: 100%"
+                    src="https://whuthycgzh.cloud/app_files/demo/hello.png"
+                    :fit="fill">
+                </el-image>
+            </el-main>
+            <el-footer>
+                <p>底部</p>
+            </el-footer>
+        </el-container>
     </div>
   </template>
   
@@ -67,37 +57,21 @@
           updatetime: "2022-1-1"
         }
       }
+    },
+    methods: {
+        to_login(){
+            this.$router.push({
+                name: "Login"
+            })
+        }
     }
   }
   </script>
   
   <style lang="less">
-  .user-center-wrapper {
-    .user-avatar {
-      float: left;
-      width: 150px;
-      height: 150px;
-    }
-    .user-info {
-      float: left;
-      width: 800px;
-      margin-left: 50px;
-      margin-bottom: 50px;
-      li {
-        height: 34px;
-        line-height: 34px;
-        label,
-        span {
-          display: inline-block;
-          vertical-align: middle;
-        }
-        label {
-          width: 80px;
-          margin-right: 12px;
-          text-align: right;
-        }
-      }
-    }
-  }
+//   .el-main{
+//     height: 500px;
+//     width: 500px;
+//   }
   </style>
   
