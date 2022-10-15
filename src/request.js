@@ -28,7 +28,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => {
     const data = response.data
-    const code = data.status
+    const code = response.status
     const message = data.msg
     if (code == 200) {
       return data

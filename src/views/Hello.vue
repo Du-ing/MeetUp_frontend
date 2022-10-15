@@ -3,14 +3,12 @@
         <el-container>
             <el-header>
                 <el-menu
-                :default-active="activeIndex"
                 class="el-menu-demo"
                 mode="horizontal"
-                @select="handleSelect"
                 background-color="#545c64"
                 text-color="#fff"
                 active-text-color="#ffd04b">
-                    <el-menu-item index="1"><a @click="to_login" target="_blank">注册</a></el-menu-item>
+                    <el-menu-item index="1"><a @click="to_register" target="_blank">注册</a></el-menu-item>
                     <el-menu-item index="2"><a @click="to_login" target="_blank">登陆</a></el-menu-item>    
                 </el-menu>
             </el-header>
@@ -26,8 +24,8 @@
                                 <p>快来加入我们吧！</p>
                             </div>
                             <div class="login-btns">
-                                <el-button type="primary" round>注册</el-button>
-                                <el-button type="success" round>登陆</el-button>
+                                <el-button type="primary" @click="to_register" round>注册</el-button>
+                                <el-button type="success" @click="to_login" round>登陆</el-button>
                             </div>
                         </div>
                     </el-col>
@@ -35,7 +33,7 @@
                         <el-image
                         style="width: 100%"
                         src="https://whuthycgzh.cloud/app_files/demo/hello.png"
-                        :fit="fill">
+                        fit="fill">
                         </el-image>
                     </el-col>
                 </el-row>
@@ -47,7 +45,7 @@
                         <el-image
                         style="width: 100%"
                         src="https://whuthycgzh.cloud/app_files/demo/hello1.png"
-                        :fit="fill">
+                        fit="fill">
                         </el-image>
                     </el-col>
                     <el-col :span="12">
@@ -85,17 +83,15 @@
                         <el-image
                         style="width: 100%"
                         src="https://whuthycgzh.cloud/app_files/demo/hello2.png"
-                        :fit="fill">
+                        fit="fill">
                         </el-image>
                     </el-col>
                 </el-row>
             </el-main>
             <el-footer>
                 <el-menu
-                :default-active="activeIndex"
                 class="el-menu-demo"
                 mode="horizontal"
-                @select="handleSelect"
                 background-color="#545c64"
                 text-color="#fff"
                 active-text-color="#ffd04b">
@@ -120,6 +116,11 @@
       }
     },
     methods: {
+        to_register(){
+            this.$router.push({
+                name: "Register"
+            })
+        },
         to_login(){
             this.$router.push({
                 name: "Login"

@@ -5,6 +5,8 @@
       <i class="el-icon-caret-bottom" />
     </div>
     <el-dropdown-menu slot="dropdown">
+      <el-dropdown-item>{{username}}</el-dropdown-item>
+      <el-dropdown-item command="userMessage">我的消息</el-dropdown-item>
       <el-dropdown-item command="userCenter">个人中心</el-dropdown-item>
       <el-dropdown-item command="loginOut">退出登录</el-dropdown-item>
     </el-dropdown-menu>
@@ -19,11 +21,15 @@ export default {
   name: 'UserAvatar',
   data() {
     return {
-      avatarSrc: Avatar
+      avatarSrc: Avatar,
+      username: this.$store.state.user.username,
     }
   },
   methods: {
     handleCommand(command) {
+      if (command === 'userMessage') {
+        this.$router.push({ name: 'MessageList' })
+      }
       if (command === 'userCenter') {
         this.$router.push({ name: 'UserCenter' })
       }

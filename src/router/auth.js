@@ -2,12 +2,12 @@ import router from './index'
 import { getToken } from '../utils/cookie'
 
 // 白名单列表
-const whiteList = ['/', '/login']
+const whiteList = ['/hello', '/login','/register']
 
 router.beforeEach((to, from, next) => {
   if (getToken()) {
     // 已登录且要跳转的是登录页
-    if (to.path === '/login') {
+    if (to.path === '/login' || to.path === '/register') {
       next({ path: '/' })
     } else {
       next()

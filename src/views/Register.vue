@@ -3,7 +3,7 @@
     <div class="form-box">
       <div class="form-title">
         <img src="../assets/img/logo.png" alt="icon">
-        <p>用 户 登 录</p>
+        <p>用 户 注 册</p>
       </div>
       <el-form ref="loginForm" :model="loginForm" :rules="loginRules" label-width="0px" class="login-form">
         <el-form-item prop="username">
@@ -17,11 +17,11 @@
         </el-form-item>
         <el-form-item>
           <el-button :loading="loading" size="small" type="primary" style="width:45%;" @click.native.prevent="handleLogin">
-            <span v-if="!loading">登 录</span>
-            <span v-else>登 录 中...</span>
+            <span v-if="!loading">注册</span>
+            <span v-else>注 册 中...</span>
           </el-button>
-          <el-button size="small" style="width:45%; margin-left: 10%;" @click="to_register">
-            <span>去注册</span>
+          <el-button size="small" style="width:45%; margin-left: 10%;" @click="to_login">
+            <span>去登陆</span>
           </el-button>
         </el-form-item>
       </el-form>
@@ -30,9 +30,9 @@
 </template>
 
 <script>
-import { login } from '../api/login'
+import { register } from '../api/login'
 import { setToken } from '../utils/cookie'
-import Background from '../assets/img/login-background.png'
+import Background from '../assets/img/register-background.png'
 
 export default {
   name: 'Login',
@@ -61,28 +61,21 @@ export default {
   //   }
   // },
   methods: {
-    to_register(){
+    to_login(){
       this.$router.push({
-          name: "Register"
+          name: "Login"
       })
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
-        // const data = new FormData()
-        // data.append("username", this.loginForm.username)
-        // data.append("password", this.loginForm.password)
         const data = {
           username: this.loginForm.username,
           password: this.loginForm.password
         }
         if (valid) {
           this.loading = true
-          login(data).then(res => {
-            this.loading = false
-            setToken(res.data.token)
-            this.$store.commit("user/storeUserInfo", res.data.user_info)
-            console.log("user", this.$store.state.user.user_info)
-            this.$router.push({ name: "TitleList" })
+          register(data).then(res => {
+            this.$router.push({ name: "Login" })
           }).catch(() => {
             this.loading = false
           })

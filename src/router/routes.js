@@ -91,4 +91,19 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/4',
+    component: Layout,
+    children: [
+      {
+        path: 'group-list',
+        name: 'GroupList',
+        component: () => import('../views/meetu/index/GroupList'),
+        meta: {
+          title: '发现群组',
+          // icon: 'vue-dsn-icon-picture'
+        },
+      }
+    ]
+  },
 ]

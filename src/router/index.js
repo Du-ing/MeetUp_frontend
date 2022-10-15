@@ -12,11 +12,11 @@ Vue.use(Router)
     icon: 'icon-name'            图标名
     fixed: true                  如果设置为 true，该项 tag 将一直存在 tag 栏中(默认为 false)
   }
- * */
+ **/
 
 export const constantRoutes = [
   {
-    path: '/',
+    path: '/hello',
     name: 'Hello',
     component: () => import('../views/Hello'),
     hidden: true,
@@ -28,6 +28,20 @@ export const constantRoutes = [
     component: () => import('../views/Login'),
     hidden: true,
     meta: { title: '登录' }
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('../views/Register'),
+    hidden: true,
+    meta: { title: '注册' }
+  },
+  {
+    path: '/message-list',
+    name: 'MessageList',
+    component: () => import('../views/meetu/user/MessageList'),
+    hidden: true,
+    meta: { title: '我的消息' }
   },
   {
     path: '401',
