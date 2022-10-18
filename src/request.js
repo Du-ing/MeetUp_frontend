@@ -13,7 +13,7 @@ service.interceptors.request.use(
   config => {
     const token = getToken()
     if (token) {
-      config.headers['Authorization'] = "Bearer " + token // 请求头设置自带 token
+      config.headers['Authorization'] = token // 请求头设置自带 token
     }
     config.headers['Content-Type'] = 'application/json' // 请求的数据格式为 json
     return config
@@ -29,23 +29,24 @@ service.interceptors.response.use(
   response => {
     const data = response.data
     const code = response.status
-    const message = data.msg
+    const msg = data.msg
     if (code == 200) {
       return data
     } else {
       Message({
         type: 'error',
-        message
+        msg
       })
       return Promise.reject('error')
     }
   },
   error => {
     const code = error.response.data.status
-    if (!code) {
+    const msg = error.response.data.msg
+    if (code != 200) {
       Message({
         type: 'error',
-        message: '接口请求失败'
+        message: msg
       })
     }
     return Promise.reject(error)

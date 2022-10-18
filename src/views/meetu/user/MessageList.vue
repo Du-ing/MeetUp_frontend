@@ -1,11 +1,24 @@
 <template>
   <div class="table-classic-wrapper">
     <el-card shadow="always">
+      <el-menu
+        :default-active="activeIndex"
+        class="el-menu-demo"
+        mode="horizontal"
+        @select="handleSelect"
+        background-color="#545c64"
+        text-color="#fff"
+        active-text-color="#ffd04b">
+        <el-menu-item index="1">未读</el-menu-item>
+        <el-menu-item index="2">已读</el-menu-item>
+        <el-menu-item index="3">已发送</el-menu-item>
+      </el-menu>
       <!-- 操作栏 -->
       <div class="control-btns">
-        <el-button type="primary" @click="handleCreate">新建Title</el-button>
+        <!-- <el-button type="primary" @click="handleCreate">新建Title</el-button>
         <el-button type="primary" @click="handleImport">导入数据</el-button>
-        <el-button type="primary" @click="exportVisible = true">导出数据</el-button>
+        <el-button type="primary" @click="exportVisible = true">导出数据</el-button> -->
+        <el-button type="primary" @click="batchRead">批量已读</el-button>
         <el-button type="danger" @click="batchDelete">批量删除</el-button>
       </div>
       <!-- 查询栏 -->
@@ -34,9 +47,9 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="60" />
-        <el-table-column prop="titleId" label="编号" align="center"  sortable />
-        <el-table-column prop="name" label="标题" align="center" />
-        <el-table-column prop="nums" label="内容数" align="center" sortable />
+        <el-table-column prop="title" label="主题" align="center" />
+        <el-table-column prop="content" label="内容" align="center" />
+        <el-table-column prop="create_time" label="发送时间" align="center"  sortable />
         <el-table-column label="禁止编辑" align="center">
           <template slot-scope="scope">
             <el-switch v-model="scope.row.forbid" @change="stateChange(scope.row)" />
@@ -44,8 +57,7 @@
         </el-table-column>
         <el-table-column label="操作" align="center" width="400">
           <template slot-scope="scope">
-            <el-button size="mini" type="warning" @click="toDetailList(scope.row)">所有内容</el-button>
-            <el-button size="mini" :disabled="scope.row.forbid" type="success" @click="addDetail(scope.row)">添加内容</el-button>
+            <el-button size="mini" type="warning" @click="toDetail(scope.row)">查看消息</el-button>
             <el-button size="mini" :disabled="scope.row.forbid" @click="handleEdit(scope.row)">编辑</el-button>
             <el-button size="mini" type="danger" @click="handleDelete([scope.row.titleId])">删除</el-button>
           </template>
@@ -53,10 +65,10 @@
       </el-table>
       <!-- 分页栏 -->
       <Pagination :total="total" :page.sync="listQuery.currentPage" :limit.sync="listQuery.pageSize" @pagination="fetchData" />
-      <!-- 新增/编辑 弹出栏 -->
+      
       <el-dialog
         :title="dialogFormTitle"
-        :visible.sync="formVisible"
+        :visible.sync="msgDetailVisible"
         width="30%"
         class="dialog-form"
         :before-close="handleClose"
@@ -67,52 +79,30 @@
           :rules="formRules"
           label-width="20%"
         >
-          <el-form-item label="标题：" prop="name">
-            <el-input v-model="dialogForm.name" style="width:85%" />
+          <el-form-item label="时间：">
+            <el-input v-model="dialogForm.create_time" style="width:85%" disabled />
+          </el-form-item>
+          <el-form-item label="发送人：">
+            <el-input v-model="dialogForm.admin_name" style="width:85%" disabled />
+          </el-form-item>
+          <el-form-item label="主题：">
+            <el-input v-model="dialogForm.title" style="width:85%" disabled />
+          </el-form-item>
+          <el-form-item label="内容：">
+            <el-input v-model="dialogForm.content" style="width:85%" disabled />
           </el-form-item>
           <div class="footer-item">
             <el-button @click="cancleForm">取 消</el-button>
             <el-button type="primary" :disabled="isSubmit" @click="submitForm('dialogForm')">确 定</el-button>
+            <el-button v-if="activeIndex == '1' || activeIndex == '2'" @click="replyMsg(dialogForm.s_id)">回 复</el-button>
           </div>
         </el-form>
-      </el-dialog>
-      <!-- 导入数据 弹出栏 -->
-      <el-dialog
-        title="导入数据"
-        :visible.sync="importVisible"
-        width="20%"
-      >
-        <div class="upload-box">
-          <span>选择文件：</span>
-          <Upload :files-format="filesFormat">
-            <i class="vue-dsn-icon-upload" />上传文件
-          </Upload>
-        </div>
-        <div class="hints">TIP：请选择要导出数据的格式。</div>
-        <span slot="footer">
-          <el-button @click="cancleImport">取 消</el-button>
-          <el-button type="primary" @click="confirmImport">确 定</el-button>
-        </span>
-      </el-dialog>
-      <!-- 导出数据 弹出栏 -->
-      <el-dialog
-        title="导出数据"
-        :visible.sync="exportVisible"
-        width="30%"
-      >
-        <div class="export-data">
-          <el-button type="primary" @click="exportTable('xlsx')">EXCEL格式</el-button>
-          <el-button type="primary" @click="exportTable('csv')">CSV格式</el-button>
-          <el-button type="primary" @click="exportTable('txt')">TXT格式</el-button>
-        </div>
-        <div class="hints">TIP：请选择要导出数据的格式。</div>
       </el-dialog>
     </el-card>
   </div>
 </template>
 
 <script>
-import excel from '../../../utils/excel'
 import Pagination from '../../../components/Pagination'
 import Upload from '../../../components/Upload'
 import Hints from '../../../components/Hints'
@@ -123,6 +113,8 @@ export default {
   components: { Pagination, Upload, Hints },
   data() {
     return {
+      activeIndex: '1',
+      msgDetailVisible: false,
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
@@ -166,6 +158,21 @@ export default {
     this.fetchData()
   },
   methods: {
+    toDetail(msg){
+      this.msgDetailVisible = true,
+      this.dialogForm = msg
+    },
+    handleSelect(key){
+      const index = key.toString()
+      this.activeIndex = index
+      this.fetchData()
+    },
+    batchRead(){
+
+    },
+    replyMsg(uid){
+      
+    },
     // 多选操作
     handleSelectionChange(val) {
       let tmp = []
@@ -173,19 +180,6 @@ export default {
         tmp.push(val[i].titleId)
       }
       this.multipleSelection = tmp
-    },
-    // 新建数据
-    handleCreate() {
-      this.formVisible = true
-      this.dialogFormTitle = "新建"
-      this.dialogForm.name = undefined
-    },
-    // 编辑数据
-    handleEdit(row) {
-      this.dialogFormTitle = "编辑"
-      this.formVisible = true
-      this.dialogForm.titleId = row.titleId
-      this.dialogForm.name = row.name
     },
     // 删除数据
     handleDelete(data) {
@@ -234,27 +228,40 @@ export default {
     },
     // 新增/编辑弹出框 关闭时操作
     handleClose() {
-      this.formVisible = false
+      this.msgDetailVisible = false
       this.$refs.dialogForm.resetFields()
     },
     // 获取数据列表
     fetchData() {
       this.listLoading = true
-      // 获取数据列表接口
+      let url = ""
+      let params = {
+        page: this.listQuery.currentPage,
+        count: this.listQuery.pageSize
+      }
+      if(this.activeIndex == "1"){
+        url = "/message/get_receiver_message"
+        params.is_read = 0
+      }
+      else if(this.activeIndex == "2"){
+        url = "/message/get_receiver_message"
+        params.is_read = 1
+      }
+      else if(this.activeIndex == "3"){
+        url = "/message/get_sender_message"
+      }
+
       service({
-        url: '/peach/title/getTitleLimit',
+        url,
         method: 'get',
-        params: {
-          currentPage: this.listQuery.currentPage,
-          size: this.listQuery.pageSize
-        }
+        params
       }).then(res => {
-        // console.log(res)
-        let dataList = res.obj.peaches
-        for(let i in dataList){
-          dataList[i].nums = dataList[i].details.length
-        }
-        this.total = res.obj.total
+        console.log(res)
+        let dataList = res.data.messages
+        // for(let i in dataList){
+        //   dataList[i].nums = dataList[i].details.length
+        // }
+        this.total = res.data.total
         this.tableData = dataList
         this.listLoading = false
       }).catch(e => {
@@ -330,57 +337,7 @@ export default {
     // 新增/编辑表单取消提交
     cancleForm() {
       this.$refs.dialogForm.resetFields()
-      this.formVisible = false
-    },
-    // 导入数据弹出栏 确认操作
-    confirmImport() {
-      // 此处添加 后台接收的接口，将导入的数据传给后台处理
-      this.importVisible = false
-    },
-    // 导入数据弹出栏 取消操作
-    cancleImport() {
-      // 将导入的数据清空
-      this.importVisible = false
-    },
-    // 导出数据--excle格式
-    exportTable(type) {
-      if (this.tableData.length) {
-        const params = {
-          header: ['编号', '标题', '内容数'],
-          key: ['titleId', 'name', 'nums'],
-          data: this.tableData,
-          autoWidth: true,
-          fileName: '导出表格',
-          bookType: type
-        }
-        excel.exportDataToExcel(params)
-        this.exportVisible = false
-      }
-    },
-    // 列表中婚姻状况栏，状态值改变时，调用
-    selectChange(row) {
-      // 此处添加后台接口，成功后调用fetchData方法更新列表
-    },
-    // 列表中禁止编辑栏，状态值改变时，调用
-    stateChange(row) {
-      // 此处添加后台接口，成功后调用fetchData方法更新列表
-    },
-    addDetail(row) {
-      this.$router.push({
-        name: "TitleEditor",
-        params: {
-          mode: "新建",
-          data: row
-        }
-      })
-    },
-    toDetailList(row) {
-      this.$router.push({
-        name: "TitleDetailList",
-        params: {
-          data: row
-        }
-      })
+      this.msgDetailVisible = false
     }
   }
 }

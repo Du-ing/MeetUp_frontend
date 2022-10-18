@@ -7,21 +7,21 @@
     <el-dropdown-menu slot="dropdown">
       <el-dropdown-item>{{username}}</el-dropdown-item>
       <el-dropdown-item command="userMessage">我的消息</el-dropdown-item>
-      <el-dropdown-item command="userCenter">个人中心</el-dropdown-item>
+      <el-dropdown-item command="userGroup">我的群组</el-dropdown-item>
+      <el-dropdown-item command="userCenter">个人信息</el-dropdown-item>
       <el-dropdown-item command="loginOut">退出登录</el-dropdown-item>
     </el-dropdown-menu>
   </el-dropdown>
 </template>
 
 <script>
-import Avatar from '../../assets/img/icon.jpg'
 import { removeToken } from '../../utils/cookie'
 
 export default {
   name: 'UserAvatar',
   data() {
     return {
-      avatarSrc: Avatar,
+      avatarSrc: this.$store.state.user.avatar,
       username: this.$store.state.user.username,
     }
   },
@@ -29,6 +29,9 @@ export default {
     handleCommand(command) {
       if (command === 'userMessage') {
         this.$router.push({ name: 'MessageList' })
+      }
+      if (command === 'userGroup') {
+        this.$router.push({ name: 'UserGroupList' })
       }
       if (command === 'userCenter') {
         this.$router.push({ name: 'UserCenter' })
@@ -44,6 +47,7 @@ export default {
         type: 'warning'
       }).then(() => {
         removeToken()
+        this.$store.commit("removeUserInfo")
         location.reload()
       })
     }

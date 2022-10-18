@@ -82,7 +82,7 @@ export default {
             setToken(res.data.token)
             this.$store.commit("user/storeUserInfo", res.data.user_info)
             console.log("user", this.$store.state.user.user_info)
-            this.$router.push({ name: "TitleList" })
+            this.$router.push({ name: "GroupList" })
           }).catch(() => {
             this.loading = false
           })

@@ -3,10 +3,8 @@
     <el-card shadow="always">
       <!-- 操作栏 -->
       <div class="control-btns">
-        <el-button type="primary" @click="handleCreate">新建Title</el-button>
-        <el-button type="primary" @click="handleImport">导入数据</el-button>
-        <el-button type="primary" @click="exportVisible = true">导出数据</el-button>
-        <el-button type="danger" @click="batchDelete">批量删除</el-button>
+        <el-button type="primary" @click="dialogFormVisible = true">创建群组</el-button>
+        <!-- <el-button type="primary" @click="handleCreate">新建Title</el-button> -->
       </div>
       <!-- 查询栏 -->
       <el-form
@@ -16,11 +14,8 @@
         label-width="90px"
         class="search-form"
       >
-        <el-form-item>
-          <el-button type="primary" @click="dialogFormVisible = true">创建群组</el-button>
-        </el-form-item>
-        <el-form-item label="标题">
-          <el-input v-model="listQuery.name" placeholder="标题" />
+        <el-form-item label="群名称">
+          <el-input v-model="listQuery.kw" placeholder="根据群名称搜索" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="searchData">查询</el-button>
@@ -33,48 +28,22 @@
             <el-input v-model="group_info.group_name" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="群组简介" style="width:85%">
-            <el-select v-model="group_info.message" placeholder="请选择活动区域">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
+            <el-input v-model="group_info.group_information" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="群组类别" style="width:85%">
+            <el-select v-model="group_info.group_type" placeholder="请选择类别">
+              <el-option label="游戏" value="1"></el-option>
+              <el-option label="同学" value="2"></el-option>
+              <el-option label="同事" value="3"></el-option>
             </el-select>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+          <el-button type="primary" @click="createGroup">确 定</el-button>
         </div>
       </el-dialog>
-      <!-- 表格栏 -->
-      <el-table
-        ref="multipleTable"
-        v-loading="listLoading"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        size="medium"
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column type="selection" width="60" />
-        <el-table-column prop="titleId" label="编号" align="center"  sortable />
-        <el-table-column prop="name" label="标题" align="center" />
-        <el-table-column prop="nums" label="内容数" align="center" sortable />
-        <el-table-column label="禁止编辑" align="center">
-          <template slot-scope="scope">
-            <el-switch v-model="scope.row.forbid" @change="stateChange(scope.row)" />
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" align="center" width="400">
-          <template slot-scope="scope">
-            <el-button size="mini" type="warning" @click="toDetailList(scope.row)">所有内容</el-button>
-            <el-button size="mini" :disabled="scope.row.forbid" type="success" @click="addDetail(scope.row)">添加内容</el-button>
-            <el-button size="mini" :disabled="scope.row.forbid" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete([scope.row.titleId])">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <!-- 分页栏 -->
-      <Pagination :total="total" :page.sync="listQuery.currentPage" :limit.sync="listQuery.pageSize" @pagination="fetchData" />
-      <!-- 新增/编辑 弹出栏 -->
+
       <el-dialog
         :title="dialogFormTitle"
         :visible.sync="formVisible"
@@ -88,8 +57,17 @@
           :rules="formRules"
           label-width="20%"
         >
-          <el-form-item label="标题：" prop="name">
-            <el-input v-model="dialogForm.name" style="width:85%" />
+          <el-form-item label="群组名称：">
+            <el-input v-model="dialogForm.group_name" style="width:85%" disabled />
+          </el-form-item>
+          <el-form-item label="群简介：">
+            <el-input v-model="dialogForm.group_information" style="width:85%" disabled />
+          </el-form-item>
+          <el-form-item label="群主：">
+            <el-input v-model="dialogForm.admin_name" style="width:85%" disabled />
+          </el-form-item>
+          <el-form-item label="群人数：">
+            <el-input v-model="dialogForm.group_nums" style="width:85%" disabled />
           </el-form-item>
           <div class="footer-item">
             <el-button @click="cancleForm">取 消</el-button>
@@ -97,37 +75,36 @@
           </div>
         </el-form>
       </el-dialog>
-      <!-- 导入数据 弹出栏 -->
-      <el-dialog
-        title="导入数据"
-        :visible.sync="importVisible"
-        width="20%"
+
+      <!-- 表格栏 -->
+      <el-table
+        ref="multipleTable"
+        v-loading="listLoading"
+        :data="tableData"
+        tooltip-effect="dark"
+        style="width: 100%"
+        size="medium"
+        @selection-change="handleSelectionChange"
       >
-        <div class="upload-box">
-          <span>选择文件：</span>
-          <Upload :files-format="filesFormat">
-            <i class="vue-dsn-icon-upload" />上传文件
-          </Upload>
-        </div>
-        <div class="hints">TIP：请选择要导出数据的格式。</div>
-        <span slot="footer">
-          <el-button @click="cancleImport">取 消</el-button>
-          <el-button type="primary" @click="confirmImport">确 定</el-button>
-        </span>
-      </el-dialog>
-      <!-- 导出数据 弹出栏 -->
-      <el-dialog
-        title="导出数据"
-        :visible.sync="exportVisible"
-        width="30%"
-      >
-        <div class="export-data">
-          <el-button type="primary" @click="exportTable('xlsx')">EXCEL格式</el-button>
-          <el-button type="primary" @click="exportTable('csv')">CSV格式</el-button>
-          <el-button type="primary" @click="exportTable('txt')">TXT格式</el-button>
-        </div>
-        <div class="hints">TIP：请选择要导出数据的格式。</div>
-      </el-dialog>
+        <el-table-column type="selection" width="60" />
+        <el-table-column prop="id" label="编号" align="center"  sortable />
+        <el-table-column prop="group_name" label="群名称" align="center" />
+        <el-table-column prop="admin_name" label="群主" align="center" />
+        <!-- <el-table-column prop="group_information" label="群简介" align="center" /> -->
+        <!-- <el-table-column label="禁止编辑" align="center">
+          <template slot-scope="scope">
+            <el-switch v-model="scope.row.forbid" @change="stateChange(scope.row)" />
+          </template>
+        </el-table-column> -->
+        <el-table-column label="操作" align="center" width="400">
+          <template slot-scope="scope">
+            <el-button size="mini" :disabled="scope.row.forbid" @click="toDetail(scope.row.id)">查看详情</el-button>
+            <el-button size="mini" type="success" @click="handleJoin([scope.row.id])">申请加入</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!-- 分页栏 -->
+      <Pagination :total="total" :page.sync="listQuery.currentPage" :limit.sync="listQuery.pageSize" @pagination="fetchData" />
     </el-card>
   </div>
 </template>
@@ -146,31 +123,34 @@ export default {
     return {
       dialogFormVisible: false,
       group_info: {
-        "group_name": undefined,
-        "message": undefined
-      },
-
-
-
-      // 数据列表加载动画
-      listLoading: true,
-      // 查询列表参数对象
-      listQuery: {
-        titleId: undefined,
-        name: undefined,
-        currentPage: 1,
-        pageSize: 10
-      },
-      // 新增/编辑提交表单对象
-      dialogForm: {
-        titleId: undefined,
-        name: undefined
+        group_name: undefined,
+        group_information: undefined,
+        group_type: undefined
       },
       dialogFormTitle: undefined,
       // 数据总条数
       total: 0,
       // 表格数据数组
       tableData: [],
+
+      dialogForm: {
+        id: undefined,
+        group_name: undefined,
+        group_information: undefined,
+        admin_name: undefined,
+        group_nums: undefined
+      },
+
+      // 数据列表加载动画
+      listLoading: true,
+      // 查询列表参数对象
+      listQuery: {
+        id: undefined,
+        group_name: undefined,
+        currentPage: 1,
+        pageSize: 10,
+        kw: undefined
+      },
       // 多选数据暂存数组
       multipleSelection: [],
       // 新增/编辑 弹出框显示/隐藏
@@ -187,19 +167,32 @@ export default {
       importVisible: false,
       // 导出文件格式
       filesFormat: '.txt, .csv, .xls, .xlsx',
-      // 导出数据 弹出框显示/隐藏
-      exportVisible: false
     }
   },
   created() {
     this.fetchData()
   },
   methods: {
-    toCreateGroup(){
-
+    createGroup(){
+      service({
+        url: "/group/create",
+        method: "post",
+        data: this.group_info
+      }).then(() => {
+        this.dialogFormVisible = false
+        this.$message({
+          type: 'success',
+          message: '创建成功!'
+        })
+        this.fetchData()
+      }).catch((e) => {
+        console.log(e)
+        this.$message({
+          type: 'info',
+          message: '创建失败!'
+        })
+      })
     },
-
-
 
 
     // 多选操作
@@ -210,63 +203,42 @@ export default {
       }
       this.multipleSelection = tmp
     },
-    // 新建数据
-    handleCreate() {
-      this.formVisible = true
-      this.dialogFormTitle = "新建"
-      this.dialogForm.name = undefined
-    },
     // 编辑数据
-    handleEdit(row) {
+    toDetail(group_id) {
       this.dialogFormTitle = "编辑"
-      this.formVisible = true
-      this.dialogForm.titleId = row.titleId
-      this.dialogForm.name = row.name
+      // this.dialogForm = row
+      service({
+          url: "group/query",
+          method: "get",
+          params: {
+            group_id: group_id
+          }
+        }).then((res) => {
+          this.dialogForm = res.data
+          this.formVisible = true
+        })
     },
-    // 删除数据
-    handleDelete(data) {
+    handleJoin(id) {
       // console.log(data)
-      this.$confirm('此操作将删除选中数据, 是否继续?', '提示', {
+      this.$confirm('是否申请加入该群组？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // 此处可添加--删除接口
-        // 删除成功调用fetchData方法更新列表
         service({
-          url: "/peach/title/deleteTitleByIds",
+          url: "/group/join_group",
           method: "post",
-          data: data
+          data: {
+            group_id: id
+          }
         }).then(() => {
           this.$message({
             type: 'success',
-            message: '删除成功!'
+            message: '申请成功!'
           })
           this.fetchData()
-        }).catch((e) => {
-          console.log(e)
-          this.$message({
-            type: 'info',
-            message: '删除失败!'
-          })
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
         })
       })
-    },
-    // 批量删除
-    batchDelete() {
-      if (this.multipleSelection.length < 1) {
-        this.$message({
-          message: '请先选择要删除的数据！',
-          type: 'warning'
-        })
-      } else {
-        this.handleDelete(this.multipleSelection)
-      }
     },
     // 新增/编辑弹出框 关闭时操作
     handleClose() {
@@ -278,20 +250,17 @@ export default {
       this.listLoading = true
       // 获取数据列表接口
       service({
-        url: '/peach/title/getTitleLimit',
+        url: '/group/query_allgroup',
         method: 'get',
         params: {
-          currentPage: this.listQuery.currentPage,
-          size: this.listQuery.pageSize
+          page: this.listQuery.currentPage,
+          count: this.listQuery.pageSize,
+          kw: this.listQuery.kw
         }
       }).then(res => {
         // console.log(res)
-        let dataList = res.obj.peaches
-        for(let i in dataList){
-          dataList[i].nums = dataList[i].details.length
-        }
-        this.total = res.obj.total
-        this.tableData = dataList
+        this.total = res.data.total
+        this.tableData = res.data.groups
         this.listLoading = false
       }).catch(e => {
         // console.log(e)
@@ -301,123 +270,89 @@ export default {
     // 查询数据
     searchData() {
       this.listQuery.currentPage = 1
-      service({
-        url: '/peach/title/getTitleByLike',
-        method: 'get',
-        params: {
-          LikeName: this.listQuery.name
-        }
-      }).then(res => {
-        // console.log(res)
-        let dataList = res.obj
-        // this.total = res.obj.total
-        this.tableData = dataList
-        this.listLoading = false
-      }).catch(e => {
-        // console.log(e)
-        this.listLoading = false
-      })
+      this.fetchData()
     },
-    // 导入数据
-    handleImport() {
-      this.importVisible = true
-    },
-    // 新增/编辑表单确认提交
-    submitForm(formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          // 此处添加 新增/编辑数据的接口 新增成功后调用fetchData方法更新列表
-          // 先 this.isSubmit = true 接口返回成功后 再 this.isSubmit = false
-          this.formVisible = false
-          let url = "/peach/title/uploadTitle"
-          let data = {
-            titleId: this.dialogForm.titleId,
-            name: this.dialogForm.name
-          }
-          if(this.dialogFormTitle == "编辑"){
-            url = "/peach/title/updateTitle"
-          }
-          service({
-            url: url,
-            method: "post",
-            data: data
-          })
-          .then(res => {
-            // console.log(res)
-            this.$message({
-              type: 'success',
-              message: this.dialogFormTitle + '成功!'
-            })
-            this.fetchData()
-          })
-          .catch(e => {
-            console.log(e);
-            this.$message({
-              type: 'error',
-              message: this.dialogFormTitle + '失败!'
-            })
-          })
-        } else {
-          this.isSubmit = false
-          return false
-        }
-      })
-    },
-    // 新增/编辑表单取消提交
+    // // 新增/编辑表单确认提交
+    // submitForm(formName) {
+    //   this.$refs[formName].validate(valid => {
+    //     if (valid) {
+    //       // 此处添加 新增/编辑数据的接口 新增成功后调用fetchData方法更新列表
+    //       // 先 this.isSubmit = true 接口返回成功后 再 this.isSubmit = false
+    //       this.formVisible = false
+    //       let url = "/peach/title/uploadTitle"
+    //       let data = {
+    //         titleId: this.dialogForm.titleId,
+    //         name: this.dialogForm.name
+    //       }
+    //       if(this.dialogFormTitle == "编辑"){
+    //         url = "/peach/title/updateTitle"
+    //       }
+    //       service({
+    //         url: url,
+    //         method: "post",
+    //         data: data
+    //       })
+    //       .then(res => {
+    //         // console.log(res)
+    //         this.$message({
+    //           type: 'success',
+    //           message: this.dialogFormTitle + '成功!'
+    //         })
+    //         this.fetchData()
+    //       })
+    //       .catch(e => {
+    //         console.log(e);
+    //         this.$message({
+    //           type: 'error',
+    //           message: this.dialogFormTitle + '失败!'
+    //         })
+    //       })
+    //     } else {
+    //       this.isSubmit = false
+    //       return false
+    //     }
+    //   })
+    // },
+    // // 新增/编辑表单取消提交
     cancleForm() {
       this.$refs.dialogForm.resetFields()
       this.formVisible = false
     },
-    // 导入数据弹出栏 确认操作
-    confirmImport() {
-      // 此处添加 后台接收的接口，将导入的数据传给后台处理
-      this.importVisible = false
-    },
-    // 导入数据弹出栏 取消操作
-    cancleImport() {
-      // 将导入的数据清空
-      this.importVisible = false
-    },
-    // 导出数据--excle格式
-    exportTable(type) {
-      if (this.tableData.length) {
-        const params = {
-          header: ['编号', '标题', '内容数'],
-          key: ['titleId', 'name', 'nums'],
-          data: this.tableData,
-          autoWidth: true,
-          fileName: '导出表格',
-          bookType: type
-        }
-        excel.exportDataToExcel(params)
-        this.exportVisible = false
-      }
-    },
-    // 列表中婚姻状况栏，状态值改变时，调用
-    selectChange(row) {
-      // 此处添加后台接口，成功后调用fetchData方法更新列表
-    },
-    // 列表中禁止编辑栏，状态值改变时，调用
-    stateChange(row) {
-      // 此处添加后台接口，成功后调用fetchData方法更新列表
-    },
-    addDetail(row) {
-      this.$router.push({
-        name: "TitleEditor",
-        params: {
-          mode: "新建",
-          data: row
-        }
-      })
-    },
-    toDetailList(row) {
-      this.$router.push({
-        name: "TitleDetailList",
-        params: {
-          data: row
-        }
-      })
-    }
+    // // 导入数据弹出栏 确认操作
+    // confirmImport() {
+    //   // 此处添加 后台接收的接口，将导入的数据传给后台处理
+    //   this.importVisible = false
+    // },
+    // // 导入数据弹出栏 取消操作
+    // cancleImport() {
+    //   // 将导入的数据清空
+    //   this.importVisible = false
+    // },
+    // // 列表中婚姻状况栏，状态值改变时，调用
+    // selectChange(row) {
+    //   // 此处添加后台接口，成功后调用fetchData方法更新列表
+    // },
+    // // 列表中禁止编辑栏，状态值改变时，调用
+    // stateChange(row) {
+    //   // 此处添加后台接口，成功后调用fetchData方法更新列表
+    // },
+    // addDetail(row) {
+    //   this.$router.push({
+    //     name: "TitleEditor",
+    //     params: {
+    //       mode: "新建",
+    //       data: row
+    //     }
+    //   })
+    // },
+    // toDetailList(row) {
+    //   this.$router.push({
+    //     name: "TitleDetailList",
+    //     params: {
+    //       data: row
+    //     }
+    //   })
+    // }
   }
 }
 </script>
