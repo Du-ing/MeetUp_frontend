@@ -1,6 +1,8 @@
 <template>
   <div class="table-classic-wrapper">
     <el-card shadow="always">
+      <el-page-header @back="goBack" title="首页">
+      </el-page-header>
       <el-menu
         :default-active="activeIndex"
         class="el-menu-demo"
@@ -14,13 +16,10 @@
         <el-menu-item index="3">已发送</el-menu-item>
       </el-menu>
       <!-- 操作栏 -->
-      <div class="control-btns">
-        <!-- <el-button type="primary" @click="handleCreate">新建Title</el-button>
-        <el-button type="primary" @click="handleImport">导入数据</el-button>
-        <el-button type="primary" @click="exportVisible = true">导出数据</el-button> -->
-        <el-button type="primary" @click="batchRead">批量已读</el-button>
+      <!-- <div class="control-btns">
+        <el-button v-if="activeIndex == '1' || activeIndex == '2'" type="primary" @click="batchRead">批量已读</el-button>
         <el-button type="danger" @click="batchDelete">批量删除</el-button>
-      </div>
+      </div> -->
       <!-- 查询栏 -->
       <el-form
         ref="searchForm"
@@ -29,8 +28,8 @@
         label-width="90px"
         class="search-form"
       >
-        <el-form-item label="标题">
-          <el-input v-model="listQuery.name" placeholder="标题" />
+        <el-form-item label="主题">
+          <el-input v-model="listQuery.kw" placeholder="根据主题模糊筛选" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="searchData">查询</el-button>
@@ -47,27 +46,23 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="60" />
+        <el-table-column v-if="activeIndex == '1' || activeIndex == '2'" prop="s_name" label="发送人" align="center" />
+        <!-- <el-table-column v-else prop="s_name" label="接收人" align="center" /> -->
         <el-table-column prop="title" label="主题" align="center" />
         <el-table-column prop="content" label="内容" align="center" />
-        <el-table-column prop="create_time" label="发送时间" align="center"  sortable />
-        <el-table-column label="禁止编辑" align="center">
-          <template slot-scope="scope">
-            <el-switch v-model="scope.row.forbid" @change="stateChange(scope.row)" />
-          </template>
-        </el-table-column>
+        <el-table-column prop="create_time" label="时间" align="center"  sortable />
         <el-table-column label="操作" align="center" width="400">
           <template slot-scope="scope">
             <el-button size="mini" type="warning" @click="toDetail(scope.row)">查看消息</el-button>
-            <el-button size="mini" :disabled="scope.row.forbid" @click="handleEdit(scope.row)">编辑</el-button>
             <el-button size="mini" type="danger" @click="handleDelete([scope.row.titleId])">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <!-- 分页栏 -->
-      <Pagination :total="total" :page.sync="listQuery.currentPage" :limit.sync="listQuery.pageSize" @pagination="fetchData" />
+      <Pagination :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.count" @pagination="fetchData" />
       
       <el-dialog
-        :title="dialogFormTitle"
+        title="消息详情"
         :visible.sync="msgDetailVisible"
         width="30%"
         class="dialog-form"
@@ -79,11 +74,8 @@
           :rules="formRules"
           label-width="20%"
         >
-          <el-form-item label="时间：">
-            <el-input v-model="dialogForm.create_time" style="width:85%" disabled />
-          </el-form-item>
-          <el-form-item label="发送人：">
-            <el-input v-model="dialogForm.admin_name" style="width:85%" disabled />
+          <el-form-item v-if="activeIndex == '1' || activeIndex == '2'" label="发送人：">
+            <el-input v-model="dialogForm.s_name" style="width:85%" disabled />
           </el-form-item>
           <el-form-item label="主题：">
             <el-input v-model="dialogForm.title" style="width:85%" disabled />
@@ -91,10 +83,42 @@
           <el-form-item label="内容：">
             <el-input v-model="dialogForm.content" style="width:85%" disabled />
           </el-form-item>
+          <el-form-item label="时间：">
+            <el-input v-model="dialogForm.create_time" style="width:85%" disabled />
+          </el-form-item>
           <div class="footer-item">
-            <el-button @click="cancleForm">取 消</el-button>
-            <el-button type="primary" :disabled="isSubmit" @click="submitForm('dialogForm')">确 定</el-button>
-            <el-button v-if="activeIndex == '1' || activeIndex == '2'" @click="replyMsg(dialogForm.s_id)">回 复</el-button>
+            <el-button @click="handleClose">取 消</el-button>
+            <!-- <el-button type="primary" :disabled="isSubmit" @click="submitForm('dialogForm')">确 定</el-button> -->
+            <el-button type="primary" v-if="activeIndex == '1' || activeIndex == '2'" @click="replyMsg(dialogForm)">回 复</el-button>
+          </div>
+        </el-form>
+      </el-dialog>
+
+      <el-dialog
+        title="消息回复"
+        :visible.sync="sendMsgVisible"
+        width="30%"
+        class="dialog-form"
+        :before-close="handleSendClose"
+      >
+        <el-form
+          ref="sendMsgForm"
+          :model="sendMsgForm"
+          :rules="formRules"
+          label-width="20%"
+        >
+          <el-form-item label="接收人">
+            <el-input v-model="dialogForm.s_name" style="width:85%" disabled />
+          </el-form-item>
+          <el-form-item label="主题：">
+            <el-input v-model="sendMsgForm.title" style="width:85%" />
+          </el-form-item>
+          <el-form-item label="内容：">
+            <el-input v-model="sendMsgForm.content" style="width:85%" />
+          </el-form-item>
+          <div class="footer-item">
+            <el-button @click="handleSendClose">取 消</el-button>
+            <el-button type="primary" :disabled="isSubmit" @click="sendMsg">确 定</el-button>
           </div>
         </el-form>
       </el-dialog>
@@ -115,19 +139,24 @@ export default {
     return {
       activeIndex: '1',
       msgDetailVisible: false,
+      sendMsgVisible: false,
+      sendMsgForm: {
+        to_ids: undefined,
+        receiver: undefined,
+        title: undefined,
+        content: undefined
+      },
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        titleId: undefined,
-        name: undefined,
-        currentPage: 1,
-        pageSize: 10
+        kw: undefined,
+        page: 1,
+        count: 10
       },
       // 新增/编辑提交表单对象
       dialogForm: {
-        titleId: undefined,
-        name: undefined
+        
       },
       dialogFormTitle: undefined,
       // 数据总条数
@@ -161,17 +190,70 @@ export default {
     toDetail(msg){
       this.msgDetailVisible = true,
       this.dialogForm = msg
+      if(this.activeIndex == "1"){
+        this.batchReadMsg([msg.id])
+      }
     },
     handleSelect(key){
       const index = key.toString()
       this.activeIndex = index
       this.fetchData()
     },
-    batchRead(){
-
+    batchReadMsg(ids){
+      service({
+        url: "/message/read_messages",
+        method: "post",
+        data: {
+          message_ids: ids
+        }
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '已读成功!'
+        })
+        this.fetchData()
+      }).catch((e) => {
+        console.log(e)
+        this.$message({
+          type: 'info',
+          message: '已读失败!'
+        })
+      })
     },
-    replyMsg(uid){
-      
+    replyMsg(dialogForm){
+      this.sendMsgVisible = true
+      this.sendMsgForm.to_ids = [dialogForm.s_id]
+      this.sendMsgForm.receiver = dialogForm.s_name
+    },
+    handleSendClose() {
+      this.sendMsgVisible = false
+      this.$refs.sendMsgForm.resetFields()
+    },
+    sendMsg(){
+      service({
+          url: "/message/send_message",
+          method: "post",
+          data: this.sendMsgForm
+        }).then(() => {
+          this.msgDetailVisible = false
+          this.sendMsgVisible = false
+          this.$message({
+            type: 'success',
+            message: '发送成功!'
+          })
+          this.fetchData()
+        }).catch((e) => {
+          this.msgDetailVisible = false
+          this.sendMsgVisible = false
+          console.log(e)
+          this.$message({
+            type: 'info',
+            message: '发送失败!'
+          })
+        })
+    },
+    goBack(){
+      this.$router.push({ path: '/' })
     },
     // 多选操作
     handleSelectionChange(val) {
@@ -235,10 +317,7 @@ export default {
     fetchData() {
       this.listLoading = true
       let url = ""
-      let params = {
-        page: this.listQuery.currentPage,
-        count: this.listQuery.pageSize
-      }
+      let params = this.listQuery
       if(this.activeIndex == "1"){
         url = "/message/get_receiver_message"
         params.is_read = 0
@@ -271,23 +350,8 @@ export default {
     },
     // 查询数据
     searchData() {
-      this.listQuery.currentPage = 1
-      service({
-        url: '/peach/title/getTitleByLike',
-        method: 'get',
-        params: {
-          LikeName: this.listQuery.name
-        }
-      }).then(res => {
-        // console.log(res)
-        let dataList = res.obj
-        // this.total = res.obj.total
-        this.tableData = dataList
-        this.listLoading = false
-      }).catch(e => {
-        // console.log(e)
-        this.listLoading = false
-      })
+      this.listQuery.page = 1
+      this.fetchData()
     },
     // 导入数据
     handleImport() {
@@ -334,11 +398,6 @@ export default {
         }
       })
     },
-    // 新增/编辑表单取消提交
-    cancleForm() {
-      this.$refs.dialogForm.resetFields()
-      this.msgDetailVisible = false
-    }
   }
 }
 </script>

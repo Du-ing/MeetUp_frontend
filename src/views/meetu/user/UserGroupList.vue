@@ -1,6 +1,12 @@
 <template>
   <div class="table-classic-wrapper">
     <el-card shadow="always">
+      <el-page-header @back="goBack" title="首页">
+      </el-page-header>
+      <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+        <el-menu-item index="1">我管理的</el-menu-item>
+        <el-menu-item index="2">我加入的</el-menu-item>
+      </el-menu>
       <!-- 操作栏 -->
       <div class="control-btns">
         <el-button type="primary" @click="dialogFormVisible = true">创建群组</el-button>
@@ -10,26 +16,15 @@
       <el-form
         ref="searchForm"
         :inline="true"
+        :model="listQuery"
         label-width="90px"
         class="search-form"
       >
         <el-form-item label="群名称">
-          <el-input v-model="listQuery.kw" placeholder="根据群名称模糊搜索" />
+          <el-input v-model="listQuery.kw" placeholder="根据群名称搜索" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="searchData">查询</el-button>
-        </el-form-item>
-        <el-form-item label="群类别">
-          <el-select v-model="listQuery.group_type" style="width:85%" placeholder="根据类别筛选" @change="fetchData">
-            <el-option label="全部"></el-option>
-            <el-option label="学习" value="1"></el-option>
-            <el-option label="工作" value="2"></el-option>
-            <el-option label="游戏" value="3"></el-option>
-            <el-option label="动漫" value="4"></el-option>
-            <el-option label="运动" value="5"></el-option>
-            <el-option label="美食" value="6"></el-option>
-            <el-option label="追星" value="7"></el-option>
-          </el-select>
         </el-form-item>
       </el-form>
 
@@ -41,8 +36,8 @@
           <el-form-item label="群组简介" style="width:85%">
             <el-input v-model="group_info.group_information" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="群组类别">
-            <el-select v-model="group_info.group_type" style="width:85%" placeholder="请选择类别">
+          <el-form-item label="群组类别" style="width:85%">
+            <el-select v-model="group_info.group_type" placeholder="请选择类别">
               <el-option label="学习" value="1"></el-option>
               <el-option label="工作" value="2"></el-option>
               <el-option label="游戏" value="3"></el-option>
@@ -73,23 +68,31 @@
           label-width="20%"
         >
           <el-form-item label="群组名称：">
-            <el-input v-model="dialogForm.group_name" style="width:85%" disabled />
+            <el-input v-model="dialogForm.group_name" style="width:85%" :disabled="activeIndex == '2'" />
           </el-form-item>
           <el-form-item label="群简介：">
-            <el-input v-model="dialogForm.group_information" style="width:85%" disabled />
+            <el-input v-model="dialogForm.group_information" style="width:85%" :disabled="activeIndex == '2'" />
+          </el-form-item>
+          <el-form-item label="群组类别">
+            <el-select v-model="dialogForm.group_type" style="width:85%" placeholder="请选择类别" :disabled="activeIndex == '2'">
+              <el-option label="学习" value="1"></el-option>
+              <el-option label="工作" value="2"></el-option>
+              <el-option label="游戏" value="3"></el-option>
+              <el-option label="动漫" value="4"></el-option>
+              <el-option label="运动" value="5"></el-option>
+              <el-option label="美食" value="6"></el-option>
+              <el-option label="追星" value="7"></el-option>
+            </el-select>
           </el-form-item>
           <el-form-item label="群主：">
             <el-input v-model="dialogForm.admin_name" style="width:85%" disabled />
-          </el-form-item>
-          <el-form-item label="群类型：">
-            <el-input v-model="dialogForm.group_type" style="width:85%" disabled />
           </el-form-item>
           <el-form-item label="群人数：">
             <el-input v-model="dialogForm.group_nums" style="width:85%" disabled />
           </el-form-item>
           <div class="footer-item">
-            <el-button @click="cancleForm">取 消</el-button>
-            <el-button type="primary" :disabled="isSubmit" @click="submitForm('dialogForm')">确 定</el-button>
+            <el-button @click="handleClose">取 消</el-button>
+            <el-button type="primary" :disabled="isSubmit" @click="updateGroup">确 定</el-button>
           </div>
         </el-form>
       </el-dialog>
@@ -105,10 +108,9 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="60" />
-        <!-- <el-table-column prop="id" label="编号" align="center"  sortable /> -->
+        <el-table-column prop="id" label="编号" align="center"  sortable />
         <el-table-column prop="group_name" label="群名称" align="center" />
         <el-table-column prop="admin_name" label="群主" align="center" />
-        <el-table-column prop="group_type" label="群类型" align="center" />
         <!-- <el-table-column prop="group_information" label="群简介" align="center" /> -->
         <!-- <el-table-column label="禁止编辑" align="center">
           <template slot-scope="scope">
@@ -118,7 +120,7 @@
         <el-table-column label="操作" align="center" width="400">
           <template slot-scope="scope">
             <el-button size="mini" :disabled="scope.row.forbid" @click="toDetail(scope.row.id)">查看详情</el-button>
-            <el-button size="mini" type="success" @click="handleJoin([scope.row.id])">申请加入</el-button>
+            <el-button v-if="activeIndex == '1'" size="mini" type="success" @click="chackJoin(scope.row.id)">加群申请</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -140,6 +142,7 @@ export default {
   components: { Pagination, Upload, Hints },
   data() {
     return {
+      activeIndex: '1',
       dialogFormVisible: false,
       group_info: {
         group_name: undefined,
@@ -167,7 +170,7 @@ export default {
         page: 1,
         count: 10,
         kw: undefined,
-        group_type: undefined
+        is_admin: 1
       },
       // 多选数据暂存数组
       multipleSelection: [],
@@ -211,7 +214,43 @@ export default {
         })
       })
     },
-
+    handleSelect(key){
+      const index = key.toString()
+      this.activeIndex = index
+      this.fetchData()
+    },
+    goBack(){
+      this.$router.push({ path: '/' })
+    },
+    chackJoin(group_id){
+      this.$router.push({
+        name: "GroupJoinApply",
+        params: {
+          group_id: group_id
+        }
+      })
+    },
+    updateGroup(){
+      service({
+        url: "/group/update",
+        method: "post",
+        data: this.dialogForm
+      }).then(() => {
+        this.dialogFormVisible = false
+        this.$message({
+          type: 'success',
+          message: '更新成功!'
+        })
+        this.formVisible = false
+        this.fetchData()
+      }).catch((e) => {
+        console.log(e)
+        this.$message({
+          type: 'info',
+          message: '更新失败!'
+        })
+      })
+    },
 
     // 多选操作
     handleSelectionChange(val) {
@@ -268,19 +307,15 @@ export default {
     // 获取数据列表
     fetchData() {
       this.listLoading = true
-      // 获取数据列表接口
+      const url = this.activeIndex == '1' ? "/group/query_allgroup" : "/group/query_user_group"
       service({
-        url: '/group/query_allgroup',
+        url,
         method: 'get',
         params: this.listQuery
       }).then(res => {
         // console.log(res)
-        let groups = res.data.groups
-        for(let i in groups){
-          groups[i].group_type = group_type_map[groups[i].group_type]
-        }
         this.total = res.data.total
-        this.tableData = groups
+        this.tableData = res.data.groups
         this.listLoading = false
       }).catch(e => {
         // console.log(e)

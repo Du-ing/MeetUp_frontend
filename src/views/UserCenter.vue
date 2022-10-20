@@ -1,71 +1,179 @@
 <template>
   <div class="user-center-wrapper clear-fix">
     <el-card shadow="always" :body-style="{padding: '50px'}">
-      <div class="user-avatar">
-        <img :src="userInfo.img" alt="avatar">
-      </div>
-      <ul class="user-info">
-        <li>
-          <label>用户名：</label>
-          <span>{{ userInfo.username }}</span>
-        </li>
-        <li>
-          <label>角色：</label>
-          <span>{{ userInfo.roles }}</span>
-        </li>
-        <li>
-          <label>昵称：</label>
-          <span>{{ userInfo.nickname }}</span>
-        </li>
-        <li>
-          <label>电话号码：</label>
-          <span>{{ userInfo.phone }}</span>
-        </li>
-        <li>
-          <label>邮箱：</label>
-          <span>{{ userInfo.email }}</span>
-        </li>
-        <li>
-          <label>创建时间：</label>
-          <span>{{ userInfo.createtime }}</span>
-        </li>
-        <li>
-          <label>更新时间：</label>
-          <span>{{ userInfo.updatetime }}</span>
-        </li>
-      </ul>
+      <el-page-header style="margin-bottom: 30px" @back="goBack" title="返回">
+      </el-page-header>
+      <el-row>
+        <el-col :span="12" class="user-avatar">
+          <img :src="userInfo.icon" alt="avatar">
+        </el-col>
+        <el-col :span="12">
+          <ul class="user-info">
+            <li>
+              <label>id：</label>
+              <span>{{ userInfo.id }}</span>
+            </li>
+            <li>
+              <label>用户名：</label>
+              <span>{{ userInfo.username }}</span>
+            </li>
+            <li>
+              <label>性别：</label>
+              <span>{{ userInfo.gender }}</span>
+            </li>
+            <li>
+              <label>年龄：</label>
+              <span>{{ userInfo.age }}</span>
+            </li>
+            <li>
+              <label>邮箱：</label>
+              <span>{{ userInfo.email }}</span>
+            </li>
+            <li>
+              <label>电话号码：</label>
+              <span>{{ userInfo.phone }}</span>
+            </li>
+            <li>
+              <label>联系方式：</label>
+              <span>{{ userInfo.social_media }}</span>
+            </li>
+            <li>
+              <label>爱好：</label>
+              <span>{{ userInfo.interest }}</span>
+            </li>
+            <li>
+              <label>简介：</label>
+              <span>{{ userInfo.profit }}</span>
+            </li>
+          </ul>
+          <el-button size="mini" type="primary" @click="updateInfo">修改资料</el-button>
+        </el-col>
+      </el-row>
+
+      <el-dialog
+        title="修改资料"
+        :visible.sync="formVisible"
+        width="30%"
+        class="dialog-form"
+        :before-close="handleClose"
+      >
+        <el-form
+          ref="dialogForm"
+          :model="userInfo"
+          label-width="20%"
+        >
+          <el-form-item label="id：">
+            <el-input v-model="userInfo.id" style="width:85%" disabled />
+          </el-form-item>
+          <el-form-item label="用户名：">
+            <el-input v-model="userInfo.username" style="width:85%" disabled />
+          </el-form-item>
+          <el-form-item label="性别：" style="width:85%">
+            <el-select v-model="userInfo.gender" placeholder="请选择性别">
+              <el-option label="男" value="1"></el-option>
+              <el-option label="女" value="0"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="年龄：">
+            <el-input v-model="userInfo.age" style="width:85%" />
+          </el-form-item>
+          <el-form-item label="邮箱：">
+            <el-input v-model="userInfo.email" style="width:85%" />
+          </el-form-item>
+          <el-form-item label="电话：">
+            <el-input v-model="userInfo.phone" style="width:85%" />
+          </el-form-item>
+          <el-form-item label="联系方式：">
+            <el-input v-model="userInfo.social_media" style="width:85%" />
+          </el-form-item>
+          <el-form-item label="爱好：">
+            <el-input v-model="userInfo.interest" style="width:85%" />
+          </el-form-item>
+          <el-form-item label="简介：">
+            <el-input v-model="userInfo.profit" style="width:85%" />
+          </el-form-item>
+          <div class="footer-item">
+            <el-button @click="handleClose">取 消</el-button>
+            <el-button type="primary" @click="submitForm">提 交</el-button>
+          </div>
+        </el-form>
+      </el-dialog>
     </el-card>
   </div>
 </template>
 
 <script>
 import { getUserInfo } from '../api/login'
-import { getToken } from '../utils/cookie'
-import img from '../assets/img/icon.jpg'
+import service from '../request'
 
 export default {
   name: 'UserCenter',
   data() {
     return {
-      userInfo: {}
+      userInfo: {
+        age: undefined,
+        email: undefined,
+        gender: undefined,
+        icon: undefined,
+        id: undefined,
+        interest: undefined,
+        password: undefined,
+        phone: undefined,
+        profit: undefined,
+        social_media: undefined,
+        username: undefined
+    },
+      formVisible: false,
     }
   },
   created() {
-    // getUserInfo().then(res => {
-    //   console.log("res", res);
-    //   this.userInfo = res
-    // })
-    if (getToken()){
-      this.userInfo = {
-        img: img,
-        username: "admin",
-        roles: "管理员",
-        nickname: "管理员",
-        phone: "183********",
-        email: "23********@qq.com",
-        createtime: "2022-1-1",
-        updatetime: "2022-1-1"
+    console.log("%%%%%%%%%%%")
+    this.fetchData()
+  },
+  methods: {
+    fetchData(){
+      getUserInfo().then(res => {
+        this.userInfo = res.data
+        this.userInfo.gender = res.data.gender == 1 ? "男" : "女"
+      })
+    },
+    goBack(){
+      this.$router.back()
+    },
+    updateInfo(){
+      this.formVisible = true
+    },
+    handleClose() {
+      this.formVisible = false
+      this.$refs.dialogForm.resetFields()
+    },
+    submitForm() {
+      let info = this.userInfo
+      if(info.gender == "男"){
+        info.gender = 1
       }
+      else if(info.gender == "女"){
+        info.gender = 0
+      }
+      service({
+        url: "/user/update",
+        method: "post",
+        data: info
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: "更新成功!"
+        })
+        this.formVisible = false
+        this.$refs.dialogForm.resetFields()
+        this.fetchData()
+      }).catch((e) => {
+        console.log(e)
+        this.$message({
+          type: 'info',
+          message: '更新失败!'
+        })
+      })
     }
   }
 }

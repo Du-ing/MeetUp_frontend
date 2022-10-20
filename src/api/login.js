@@ -16,10 +16,9 @@ export function register(data) {
   })
 }
 
-export function getUserInfo(params) {
+export function getUserInfo() {
   return request({
-    url: '/user/info',
-    method: 'get',
-    params
+    url: '/user/get_user',
+    method: 'get'
   })
 }

@@ -39,26 +39,40 @@ export const constantRoutes = [
   {
     path: '/message-list',
     name: 'MessageList',
-    component: () => import('../views/meetu/user/MessageList'),
+    component: () => import('../views/meetu/user/UserMessageList'),
     hidden: true,
     meta: { title: '我的消息' }
   },
   {
-    path: '401',
+    path: '/user-group-list',
+    name: 'UserGroupList',
+    component: () => import('../views/meetu/user/UserGroupList'),
+    hidden: true,
+    meta: { title: '我的群组' }
+  },
+  {
+    path: '/group-join-apply',
+    name: 'GroupJoinApply',
+    component: () => import('../views/meetu/user/GroupJoinApply'),
+    hidden: true,
+    meta: { title: '我的群组' }
+  },
+  {
+    path: '/401',
     name: '401',
     component: () => import('../views/error-page/401'),
     hidden: true,
     meta: { title: '401' }
   },
   {
-    path: '404',
+    path: '/404',
     name: '404',
     component: () => import('../views/error-page/404'),
     hidden: true,
     meta: { title: '404' }
   },
   {
-    path: 'user-center',
+    path: '/user-center',
     name: 'UserCenter',
     component: () => import('../views/UserCenter'),
     hidden: true,
