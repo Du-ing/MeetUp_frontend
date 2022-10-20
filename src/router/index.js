@@ -15,13 +15,13 @@ Vue.use(Router)
  **/
 
 export const constantRoutes = [
-  {
-    path: '/hello',
-    name: 'Hello',
-    component: () => import('../views/Hello'),
-    hidden: true,
-    meta: { title: '欢迎页' }
-  },
+  // {
+  //   path: '/hello',
+  //   name: 'Hello',
+  //   component: () => import('../views/Hello'),
+  //   hidden: true,
+  //   meta: { title: '欢迎页' }
+  // },
   {
     path: '/login',
     name: 'Login',

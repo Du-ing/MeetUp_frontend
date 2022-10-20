@@ -1,11 +1,11 @@
 <template>
   <div class="table-classic-wrapper">
     <el-card shadow="always">
-      <el-page-header @back="goBack" title="首页">
-      </el-page-header>
+      <el-page-header style="margin-bottom: 15px" @back="goBack" title="返回"></el-page-header>
       <el-menu
         :default-active="activeIndex"
         class="el-menu-demo"
+        style="margin-top: 20px;"
         mode="horizontal"
         @select="handleSelect"
         background-color="#545c64"
@@ -15,11 +15,6 @@
         <el-menu-item index="2">已读</el-menu-item>
         <el-menu-item index="3">已发送</el-menu-item>
       </el-menu>
-      <!-- 操作栏 -->
-      <!-- <div class="control-btns">
-        <el-button v-if="activeIndex == '1' || activeIndex == '2'" type="primary" @click="batchRead">批量已读</el-button>
-        <el-button type="danger" @click="batchDelete">批量删除</el-button>
-      </div> -->
       <!-- 查询栏 -->
       <el-form
         ref="searchForm"
@@ -253,7 +248,7 @@ export default {
         })
     },
     goBack(){
-      this.$router.push({ path: '/' })
+      this.$router.back()
     },
     // 多选操作
     handleSelectionChange(val) {
@@ -352,51 +347,6 @@ export default {
     searchData() {
       this.listQuery.page = 1
       this.fetchData()
-    },
-    // 导入数据
-    handleImport() {
-      this.importVisible = true
-    },
-    // 新增/编辑表单确认提交
-    submitForm(formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          // 此处添加 新增/编辑数据的接口 新增成功后调用fetchData方法更新列表
-          // 先 this.isSubmit = true 接口返回成功后 再 this.isSubmit = false
-          this.formVisible = false
-          let url = "/peach/title/uploadTitle"
-          let data = {
-            titleId: this.dialogForm.titleId,
-            name: this.dialogForm.name
-          }
-          if(this.dialogFormTitle == "编辑"){
-            url = "/peach/title/updateTitle"
-          }
-          service({
-            url: url,
-            method: "post",
-            data: data
-          })
-          .then(res => {
-            // console.log(res)
-            this.$message({
-              type: 'success',
-              message: this.dialogFormTitle + '成功!'
-            })
-            this.fetchData()
-          })
-          .catch(e => {
-            console.log(e);
-            this.$message({
-              type: 'error',
-              message: this.dialogFormTitle + '失败!'
-            })
-          })
-        } else {
-          this.isSubmit = false
-          return false
-        }
-      })
     },
   }
 }

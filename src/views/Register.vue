@@ -2,6 +2,7 @@
   <div class="login-wrapper" :style="'background-image:url('+ Background +')'">
     <div class="form-box">
       <div class="form-title">
+        <el-page-header style="margin-bottom: 15px" @back="goBack" title="首页"></el-page-header>
         <img src="../assets/img/logo.png" alt="icon">
         <p>用 户 注 册</p>
       </div>
@@ -16,7 +17,7 @@
           <el-checkbox v-model="loginForm.rememberMe">记住我</el-checkbox>
         </el-form-item>
         <el-form-item>
-          <el-button :loading="loading" size="small" type="primary" style="width:45%;" @click.native.prevent="handleLogin">
+          <el-button :loading="loading" size="small" type="primary" style="width:45%;" @click.native.prevent="handleRegister">
             <span v-if="!loading">注册</span>
             <span v-else>注 册 中...</span>
           </el-button>
@@ -66,7 +67,7 @@ export default {
           name: "Login"
       })
     },
-    handleLogin() {
+    handleRegister() {
       this.$refs.loginForm.validate(valid => {
         const data = {
           username: this.loginForm.username,
@@ -75,13 +76,20 @@ export default {
         if (valid) {
           this.loading = true
           register(data).then(res => {
+            this.$message({
+              type: 'success',
+              message: '注册成功，请登录！'
+            })
             this.$router.push({ name: "Login" })
           }).catch(() => {
             this.loading = false
           })
         }
       })
-    }
+    },
+    goBack(){
+      this.$router.push({ path: '/' })
+    },
   }
 }
 </script>

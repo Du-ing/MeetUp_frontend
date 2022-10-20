@@ -1,13 +1,13 @@
 <template>
   <div class="app-wrapper">
-    <div class="side-container" :class="collapsed ? 'folded' : 'unfolded'">
+    <!-- <div class="side-container" :class="collapsed ? 'folded' : 'unfolded'">
       <div class="logo">
         <a href="/">
           <img :src="imgSrc" alt="logo">
         </a>
       </div>
       <SideMenu />
-    </div>
+    </div> -->
     <div class="main-container" :class="collapsed ? 'wider' : 'normal'">
       <div class="main-header">
         <HeaderBar />
@@ -25,7 +25,7 @@
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 import HeaderBar from './components/HeaderBar/index'
-import SideMenu from './components/SideMenu/index'
+// import SideMenu from './components/SideMenu/index'
 import TagsNav from './components/TagsView/index'
 import MainView from './components/MainView/index'
 import Logo from '../assets/img/logo.png'
@@ -35,7 +35,7 @@ const RESIZE_WIDTH = 1440
 
 export default {
   name: 'Layout',
-  components: { HeaderBar, SideMenu, TagsNav, MainView },
+  components: { HeaderBar, TagsNav, MainView },
   computed: {
     ...mapGetters('app', ['collapsed']),
     imgSrc() {
@@ -101,26 +101,26 @@ export default {
       height: 100%;
     }
   }
-  .main-container{
-    float: left;
-    height: 100vh;
-    transition: width 0.5s;
-    &.normal {
-      width: calc(100% - 260px);
-    }
-    &.wider {
-      width: calc(100% - 64px);
-    }
-    .main-content{
-      .el-scrollbar{
-        height: calc(100vh - 64px - 40px);
-        .scroll-bar;
-        .scrollbar{
-          height: 100%;
-          overflow-x: hidden;
-        }
-      }
-    }
-  }
+  // .main-container{
+    // float: left;
+    // height: 100vh;
+    // transition: width 0.5s;
+    // &.normal {
+    //   width: calc(100% - 260px);
+    // }
+    // &.wider {
+    //   width: calc(100% - 64px);
+    // }
+    // .main-content{
+    //   .el-scrollbar{
+    //     height: calc(100vh - 64px - 40px);
+    //     .scroll-bar;
+    //     .scrollbar{
+    //       height: 100%;
+    //       overflow-x: hidden;
+    //     }
+    //   }
+    // }
+  // }
 }
 </style>

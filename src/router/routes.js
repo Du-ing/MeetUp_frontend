@@ -1,4 +1,5 @@
 import Layout from '../layout'
+import Header from '../layout/components/HeaderBar'
 
 /**
  * hidden: true                  如果设置为 true，该项菜单将不会显示在菜单栏中(默认为 false)
@@ -12,6 +13,22 @@ import Layout from '../layout'
 export const asyncRoutes = [
   {
     path: '/',
+    redirect: '/hello',
+    component: Layout,
+    children: [
+      {
+        path: 'hello',
+        name: 'Hello',
+        component: () => import('../views/meetu/Hello'),
+        meta: {
+          title: '欢迎页',
+          // icon: 'vue-dsn-icon-picture'
+        },
+      }
+    ]
+  },
+  {
+    path: '/1',
     redirect: '/group-list',
     component: Layout,
     children: [

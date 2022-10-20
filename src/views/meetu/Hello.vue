@@ -1,32 +1,20 @@
 <template>
     <div class="hello">
         <el-container>
-            <el-header>
-                <el-menu
-                class="el-menu-demo"
-                mode="horizontal"
-                background-color="#545c64"
-                text-color="#fff"
-                active-text-color="#ffd04b">
-                    <el-menu-item index="1"><a @click="to_register" target="_blank">注册</a></el-menu-item>
-                    <el-menu-item index="2"><a @click="to_login" target="_blank">登陆</a></el-menu-item>    
-                </el-menu>
-            </el-header>
             <el-main class="el-main">
                 <el-row :gutter="20">
                     <el-col :span="12">
                         <div  class="first-row">
-                            <div class="title">欢迎来到MeetUp</div>
+                            <div class="title">欢迎来到MeetU</div>
                             <div class="intro">
                                 <p>你可以在这里找到情投意合的朋友，</p>
                                 <p>你可以在这里加入温馨有爱的组织，</p>
                                 <p>你可以在这里收到满心欢喜的讯息，</p>
                                 <p>快来加入我们吧！</p>
                             </div>
-                            <div class="login-btns">
-                                <el-button type="primary" @click="to_register" round>注册</el-button>
-                                <el-button type="success" @click="to_login" round>登陆</el-button>
-                            </div>
+                            <el-link class="link" type="success" @click="goTo(1)">
+                                进入<i class="el-icon-right"></i>
+                            </el-link>
                         </div>
                     </el-col>
                     <el-col :span="12">
@@ -50,15 +38,16 @@
                     </el-col>
                     <el-col :span="12">
                         <div  class="first-row">
-                            <div class="title">Events</div>
+                            <div class="title">Groups</div>
                             <div class="intro">
                                 <p>你可以在这里找到情投意合的朋友，</p>
                                 <p>你可以在这里加入温馨有爱的组织，</p>
                                 <p>你可以在这里收到满心欢喜的讯息，</p>
                                 <p>快来加入我们吧！</p>
                             </div>
-                            <div class="login-btns">
-                            </div>
+                            <el-link class="link" type="primary" @click="goTo(2)">
+                                <i class="el-icon-back"></i>进入
+                            </el-link>
                         </div>
                     </el-col>
                 </el-row>
@@ -68,15 +57,16 @@
                 <el-row :gutter="20">
                     <el-col :span="12">
                         <div  class="first-row">
-                            <div class="title">Groups</div>
+                            <div class="title">Events</div>
                             <div class="intro">
                                 <p>你可以在这里找到情投意合的朋友，</p>
                                 <p>你可以在这里加入温馨有爱的组织，</p>
                                 <p>你可以在这里收到满心欢喜的讯息，</p>
                                 <p>快来加入我们吧！</p>
                             </div>
-                            <div class="login-btns">
-                            </div>
+                            <el-link class="link" type="warning" @click="goTo(3)">
+                                进入<i class="el-icon-right"></i>
+                            </el-link>
                         </div>
                     </el-col>
                     <el-col :span="12">
@@ -88,25 +78,14 @@
                     </el-col>
                 </el-row>
             </el-main>
-            <el-footer>
-                <el-menu
-                class="el-menu-demo"
-                mode="horizontal"
-                background-color="#545c64"
-                text-color="#fff"
-                active-text-color="#ffd04b">
-                    <el-menu-item index="1"><a @click="to_login" target="_blank">注册</a></el-menu-item>
-                    <el-menu-item index="2"><a @click="to_login" target="_blank">登陆</a></el-menu-item>    
-                </el-menu>
-            </el-footer>
         </el-container>
     </div>
   </template>
   
   <script>
-  import { getUserInfo } from '../api/login'
-  import { getToken } from '../utils/cookie'
-  import img from '../assets/img/icon.jpg'
+  import { getUserInfo } from '../../api/login'
+  import { getToken } from '../../utils/cookie'
+  import img from '../../assets/img/icon.jpg'
   
   export default {
     name: 'Hello',
@@ -125,6 +104,23 @@
             this.$router.push({
                 name: "Login"
             })
+        },
+        goTo(key){
+            if(key == 1){
+                this.$router.push({
+                    name: "UserCenter"
+                })
+            }
+            else if(key == 2){
+                this.$router.push({
+                    name: "GroupList"
+                })
+            }
+            else if(key == 3){
+                this.$router.push({
+                    name: "GroupList"
+                })
+            }
         }
     }
   }
@@ -144,6 +140,10 @@
     }
     .login-btns{
         margin-top: 5vh;
+    }
+    .link{
+        margin-top: 20px;
+        font-size: 30px;
     }
   </style>
   

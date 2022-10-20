@@ -2,6 +2,7 @@
   <div class="login-wrapper" :style="'background-image:url('+ Background +')'">
     <div class="form-box">
       <div class="form-title">
+        <el-page-header style="margin-bottom: 15px" @back="goBack" title="首页"></el-page-header>
         <img src="../assets/img/logo.png" alt="icon">
         <p>用 户 登 录</p>
       </div>
@@ -79,16 +80,22 @@ export default {
           this.loading = true
           login(data).then(res => {
             this.loading = false
+            this.$message({
+              type: 'success',
+              message: '登陆成功!'
+            })
             setToken(res.data.token)
             this.$store.commit("user/storeUserInfo", res.data.user_info)
-            console.log("user", this.$store.state.user.user_info)
-            this.$router.push({ name: "GroupList" })
+            this.$router.push({ path: "/" })
           }).catch(() => {
             this.loading = false
           })
         }
       })
-    }
+    },
+    goBack(){
+      this.$router.push({ path: '/' })
+    },
   }
 }
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div class="table-classic-wrapper">
     <el-card shadow="always">
-      <el-page-header @back="goBack" title="首页">
+      <el-page-header style="margin-bottom: 15px" @back="goBack" title="返回">
       </el-page-header>
       <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
         <el-menu-item index="1">我管理的</el-menu-item>
@@ -220,7 +220,7 @@ export default {
       this.fetchData()
     },
     goBack(){
-      this.$router.push({ path: '/' })
+      this.$router.back()
     },
     chackJoin(group_id){
       this.$router.push({
@@ -327,87 +327,10 @@ export default {
       this.listQuery.page = 1
       this.fetchData()
     },
-    // // 新增/编辑表单确认提交
-    // submitForm(formName) {
-    //   this.$refs[formName].validate(valid => {
-    //     if (valid) {
-    //       // 此处添加 新增/编辑数据的接口 新增成功后调用fetchData方法更新列表
-    //       // 先 this.isSubmit = true 接口返回成功后 再 this.isSubmit = false
-    //       this.formVisible = false
-    //       let url = "/peach/title/uploadTitle"
-    //       let data = {
-    //         titleId: this.dialogForm.titleId,
-    //         name: this.dialogForm.name
-    //       }
-    //       if(this.dialogFormTitle == "编辑"){
-    //         url = "/peach/title/updateTitle"
-    //       }
-    //       service({
-    //         url: url,
-    //         method: "post",
-    //         data: data
-    //       })
-    //       .then(res => {
-    //         // console.log(res)
-    //         this.$message({
-    //           type: 'success',
-    //           message: this.dialogFormTitle + '成功!'
-    //         })
-    //         this.fetchData()
-    //       })
-    //       .catch(e => {
-    //         console.log(e);
-    //         this.$message({
-    //           type: 'error',
-    //           message: this.dialogFormTitle + '失败!'
-    //         })
-    //       })
-    //     } else {
-    //       this.isSubmit = false
-    //       return false
-    //     }
-    //   })
-    // },
-    // // 新增/编辑表单取消提交
     cancleForm() {
       this.$refs.dialogForm.resetFields()
       this.formVisible = false
     },
-    // // 导入数据弹出栏 确认操作
-    // confirmImport() {
-    //   // 此处添加 后台接收的接口，将导入的数据传给后台处理
-    //   this.importVisible = false
-    // },
-    // // 导入数据弹出栏 取消操作
-    // cancleImport() {
-    //   // 将导入的数据清空
-    //   this.importVisible = false
-    // },
-    // // 列表中婚姻状况栏，状态值改变时，调用
-    // selectChange(row) {
-    //   // 此处添加后台接口，成功后调用fetchData方法更新列表
-    // },
-    // // 列表中禁止编辑栏，状态值改变时，调用
-    // stateChange(row) {
-    //   // 此处添加后台接口，成功后调用fetchData方法更新列表
-    // },
-    // addDetail(row) {
-    //   this.$router.push({
-    //     name: "TitleEditor",
-    //     params: {
-    //       mode: "新建",
-    //       data: row
-    //     }
-    //   })
-    // },
-    // toDetailList(row) {
-    //   this.$router.push({
-    //     name: "TitleDetailList",
-    //     params: {
-    //       data: row
-    //     }
-    //   })
-    // }
   }
 }
 </script>
@@ -418,6 +341,7 @@ export default {
     min-height: 656px;
   }
   .control-btns {
+    margin-top: 20px;
     margin-bottom: 20px;
   }
   .search-form {

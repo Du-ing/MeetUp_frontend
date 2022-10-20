@@ -35,7 +35,6 @@ import Pagination from '../../../components/Pagination'
 import Upload from '../../../components/Upload'
 import Hints from '../../../components/Hints'
 import service from '../../../request'
-import a from 'file-saver'
 
 export default {
   name: 'TitleList',

@@ -1,26 +1,33 @@
 <template>
   <el-dropdown class="user-avatar-wrapper" @command="handleCommand">
-    <div class="avatar-box">
-      <el-avatar size="small" :src="avatarSrc" />
-      <i class="el-icon-caret-bottom" />
+    <div v-if="!token">
+      <el-link type="primary" :underline="false" @click="goLogin">去登陆</el-link>
     </div>
-    <el-dropdown-menu slot="dropdown">
-      <el-dropdown-item>{{username}}</el-dropdown-item>
-      <el-dropdown-item command="userMessage">我的消息</el-dropdown-item>
-      <el-dropdown-item command="userGroup">我的群组</el-dropdown-item>
-      <el-dropdown-item command="userCenter">个人信息</el-dropdown-item>
-      <el-dropdown-item command="loginOut">退出登录</el-dropdown-item>
-    </el-dropdown-menu>
+    <div v-else>
+      <div class="avatar-box">
+        <el-avatar size="small" :src="avatarSrc" />
+        <i class="el-icon-caret-bottom" />
+      </div>
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item>用户:{{username}}</el-dropdown-item>
+        <el-dropdown-item command="userMessage">我的消息</el-dropdown-item>
+        <el-dropdown-item command="userGroup">我的群组</el-dropdown-item>
+        <el-dropdown-item command="userCenter">个人信息</el-dropdown-item>
+        <el-dropdown-item command="loginOut">注销登录</el-dropdown-item>
+      </el-dropdown-menu>
+    </div>
   </el-dropdown>
 </template>
 
 <script>
 import { removeToken } from '../../utils/cookie'
+import { getToken } from '../../utils/cookie'
 
 export default {
   name: 'UserAvatar',
   data() {
     return {
+      token: getToken(),
       avatarSrc: this.$store.state.user.avatar,
       username: this.$store.state.user.username,
     }
@@ -47,8 +54,13 @@ export default {
         type: 'warning'
       }).then(() => {
         removeToken()
-        this.$store.commit("removeUserInfo")
+        this.$store.commit("user/removeUserInfo")
         location.reload()
+      })
+    },
+    goLogin(){
+      this.$router.push({
+          name: "Login"
       })
     }
   }
