@@ -12,7 +12,7 @@
         <el-dropdown-item>用户:{{username}}</el-dropdown-item>
         <el-dropdown-item command="userMessage">我的消息</el-dropdown-item>
         <el-dropdown-item command="userGroup">我的群组</el-dropdown-item>
-        <el-dropdown-item command="userCenter">个人信息</el-dropdown-item>
+        <el-dropdown-item command="userCenter">个人资料</el-dropdown-item>
         <el-dropdown-item command="loginOut">注销登录</el-dropdown-item>
       </el-dropdown-menu>
     </div>

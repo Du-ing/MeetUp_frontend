@@ -43,4 +43,20 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/2',
+    redirect: '/event-list',
+    component: Layout,
+    children: [
+      {
+        path: 'event-list',
+        name: 'EventList',
+        component: () => import('../views/meetu/index/EventList'),
+        meta: {
+          title: '发现活动',
+          // icon: 'vue-dsn-icon-picture'
+        },
+      }
+    ]
+  },
 ]

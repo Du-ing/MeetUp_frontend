@@ -55,7 +55,7 @@
       </el-dialog>
 
       <el-dialog
-        :title="dialogFormTitle"
+        title="群组信息"
         :visible.sync="formVisible"
         width="30%"
         class="dialog-form"
@@ -90,6 +90,9 @@
           <el-form-item label="群人数：">
             <el-input v-model="dialogForm.group_nums" style="width:85%" disabled />
           </el-form-item>
+          <el-link style="position: absolute;right: 50px;" :underline="false" type="primary" @click="checkUsers(dialogForm.id, dialogForm.group_name)">
+            进入群<i class="el-icon-d-arrow-right"></i>
+          </el-link>
           <div class="footer-item">
             <el-button @click="handleClose">取 消</el-button>
             <el-button type="primary" :disabled="isSubmit" @click="updateGroup">确 定</el-button>
@@ -120,7 +123,7 @@
         <el-table-column label="操作" align="center" width="400">
           <template slot-scope="scope">
             <el-button size="mini" :disabled="scope.row.forbid" @click="toDetail(scope.row.id)">查看详情</el-button>
-            <el-button v-if="activeIndex == '1'" size="mini" type="success" @click="chackJoin(scope.row.id)">加群申请</el-button>
+            <el-button v-if="activeIndex == '1'" size="mini" type="success" @click="chackJoin(scope.row.id)">处理申请</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -135,7 +138,8 @@ import Pagination from '../../../components/Pagination'
 import Upload from '../../../components/Upload'
 import Hints from '../../../components/Hints'
 import service from '../../../request'
-import group_type_map from '../../../config'
+import {group_type_map} from '../../../config'
+import {group_type_num_map} from '../../../config'
 
 export default {
   name: 'TitleList',
@@ -160,7 +164,8 @@ export default {
         group_name: undefined,
         group_information: undefined,
         admin_name: undefined,
-        group_nums: undefined
+        group_nums: undefined,
+        group_type: undefined
       },
 
       // 数据列表加载动画
@@ -231,17 +236,21 @@ export default {
       })
     },
     updateGroup(){
+      let groupInfo = this.dialogForm
+      let value = group_type_num_map[groupInfo.group_type]
+      if(value){
+        groupInfo.group_type = value
+      }
       service({
         url: "/group/update",
         method: "post",
-        data: this.dialogForm
+        data: groupInfo
       }).then(() => {
-        this.dialogFormVisible = false
+        this.formVisible = false
         this.$message({
           type: 'success',
           message: '更新成功!'
         })
-        this.formVisible = false
         this.fetchData()
       }).catch((e) => {
         console.log(e)
@@ -331,6 +340,17 @@ export default {
       this.$refs.dialogForm.resetFields()
       this.formVisible = false
     },
+    checkUsers(group_id, group_name){
+      const is_admin = this.activeIndex == '1' ? true : false;
+      this.$router.push({
+        name: "GroupUserList",
+        params: {
+          group_id: group_id,
+          group_name: group_name,
+          is_admin: is_admin
+        }
+      })
+    }
   }
 }
 </script>

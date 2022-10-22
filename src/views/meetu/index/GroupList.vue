@@ -88,8 +88,7 @@
             <el-input v-model="dialogForm.group_nums" style="width:85%" disabled />
           </el-form-item>
           <div class="footer-item">
-            <el-button @click="cancleForm">取 消</el-button>
-            <el-button type="primary" :disabled="isSubmit" @click="submitForm('dialogForm')">确 定</el-button>
+            <el-button type="primary" @click="cancleForm">确 定</el-button>
           </div>
         </el-form>
       </el-dialog>
@@ -133,7 +132,7 @@ import Pagination from '../../../components/Pagination'
 import Upload from '../../../components/Upload'
 import Hints from '../../../components/Hints'
 import service from '../../../request'
-import group_type_map from '../../../config'
+import {group_type_map} from '../../../config'
 
 export default {
   name: 'TitleList',
@@ -224,7 +223,7 @@ export default {
       this.dialogFormTitle = "编辑"
       // this.dialogForm = row
       service({
-          url: "group/query",
+          url: "/group/query",
           method: "get",
           params: {
             group_id: group_id

@@ -13,11 +13,11 @@ const getters = {
 
 const mutations = {
   storeUserInfo: (state, user_info) => {
-    console.log(user_info)
+    // console.log(user_info)
     state.user_id = user_info.id
     state.username = user_info.username
     state.avatar = user_info.icon
-    localStorage.setItem('user_info', user_info.id)
+    localStorage.setItem('user_id', user_info.id)
     localStorage.setItem('username', user_info.username)
     localStorage.setItem('avatar', user_info.icon)
   },

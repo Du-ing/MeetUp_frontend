@@ -118,7 +118,7 @@
             }
             else if(key == 3){
                 this.$router.push({
-                    name: "GroupList"
+                    name: "EventList"
                 })
             }
         }

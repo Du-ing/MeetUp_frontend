@@ -58,6 +58,13 @@ export const constantRoutes = [
     meta: { title: '我的群组' }
   },
   {
+    path: '/group-user-list',
+    name: 'GroupUserList',
+    component: () => import('../views/meetu/user/GroupUserList'),
+    hidden: true,
+    meta: { title: '我的群组' }
+  },
+  {
     path: '/401',
     name: '401',
     component: () => import('../views/error-page/401'),
