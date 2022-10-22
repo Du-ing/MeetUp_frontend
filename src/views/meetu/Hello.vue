@@ -83,9 +83,6 @@
   </template>
   
   <script>
-  import { getUserInfo } from '../../api/login'
-  import { getToken } from '../../utils/cookie'
-  import img from '../../assets/img/icon.jpg'
   
   export default {
     name: 'Hello',
