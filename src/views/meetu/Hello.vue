@@ -20,7 +20,7 @@
                     <el-col :span="12">
                         <el-image
                         style="width: 100%"
-                        src="https://whuthycgzh.cloud/app_files/demo/hello.png"
+                        src="http://aitmaker.cn:6555/app_file/hello.jpg"
                         fit="fill">
                         </el-image>
                     </el-col>
@@ -32,7 +32,7 @@
                     <el-col :span="12">
                         <el-image
                         style="width: 100%"
-                        src="https://whuthycgzh.cloud/app_files/demo/hello1.png"
+                        src="http://aitmaker.cn:6555/app_file/hello1.jpg"
                         fit="fill">
                         </el-image>
                     </el-col>
@@ -72,7 +72,7 @@
                     <el-col :span="12">
                         <el-image
                         style="width: 100%"
-                        src="https://whuthycgzh.cloud/app_files/demo/hello2.png"
+                        src="http://aitmaker.cn:6555/app_file/hello2.jpg"
                         fit="fill">
                         </el-image>
                     </el-col>

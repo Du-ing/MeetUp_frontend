@@ -75,6 +75,19 @@
               <el-option label="追星" value="7"></el-option>
             </el-select>
           </el-form-item>
+          <el-form-item label="活动封面" style="width:85%">
+            <el-upload
+              class="avatar-uploader"
+              action="http://aitmaker.cn:6543/user/upload_file"
+              name="file"
+              :headers="headers"
+              :show-file-list="false"
+              :on-success="handleAvatarSuccess"
+              :before-upload="beforeAvatarUpload">
+              <img v-if="event_info.event_img" :src="event_info.event_img" class="avatar">
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -173,6 +186,7 @@ import Hints from '../../../components/Hints'
 import service from '../../../request'
 import {group_type_map} from '../../../config'
 import {group_type_num_map} from '../../../config'
+import {getToken} from '../../../utils/cookie'
 
 export default {
   name: 'TitleList',
@@ -186,7 +200,8 @@ export default {
         event_name: undefined,
         event_information: undefined,
         event_type: undefined,
-        group_id: undefined
+        group_id: undefined,
+        event_img: undefined,
       },
       group_id: undefined,
       group_name: undefined,
@@ -198,6 +213,9 @@ export default {
         content: undefined,
         to_ids: [],
         receiver: undefined
+      },
+      headers: {
+        Authorization: getToken()
       },
       // 数据列表加载动画
       listLoading: true,
@@ -451,6 +469,22 @@ export default {
         })
       })
     },
+    handleAvatarSuccess(res, file) {
+      this.event_info.event_img = res.data.file_url
+
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg' || file.type === 'image/png';
+      const isLt2M = file.size / 1024 / 1024 < 10;
+
+      if (!isJPG) {
+        this.$message.error('上传图片只能是 JPG或PNG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 10MB!');
+      }
+      return isJPG && isLt2M;
+    },
   }
 }
 </script>
@@ -537,6 +571,29 @@ export default {
     font-size: 12px;
     color: #aaa;
     text-align: center;
+  }
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
   }
 }
 </style>

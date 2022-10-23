@@ -92,6 +92,19 @@
           <el-form-item label="简介：">
             <el-input v-model="userInfo.profit" style="width:85%" />
           </el-form-item>
+          <el-form-item label="头像" style="width:85%">
+            <el-upload
+              class="avatar-uploader"
+              action="http://aitmaker.cn:6543/user/upload_file"
+              name="file"
+              :headers="headers"
+              :show-file-list="false"
+              :on-success="handleAvatarSuccess"
+              :before-upload="beforeAvatarUpload">
+              <img v-if="userInfo.icon" :src="userInfo.icon" class="avatar">
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </el-form-item>
           <div class="footer-item">
             <el-button @click="handleClose">取 消</el-button>
             <el-button type="primary" @click="submitForm">提 交</el-button>
@@ -105,6 +118,7 @@
 <script>
 import { getUserInfo } from '../api/login'
 import service from '../request'
+import { getToken } from '../utils/cookie'
 
 export default {
   name: 'UserCenter',
@@ -122,12 +136,14 @@ export default {
         profit: undefined,
         social_media: undefined,
         username: undefined
-    },
+      },
       formVisible: false,
+      headers: {
+        Authorization: getToken()
+      }
     }
   },
   created() {
-    console.log("%%%%%%%%%%%")
     this.fetchData()
   },
   methods: {
@@ -174,7 +190,22 @@ export default {
           message: '更新失败!'
         })
       })
-    }
+    },
+    handleAvatarSuccess(res, file) {
+      this.userInfo.icon = res.data.file_url
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg' || file.type === 'image/png';
+      const isLt2M = file.size / 1024 / 1024 < 10;
+
+      if (!isJPG) {
+        this.$message.error('上传图片只能是 JPG或PNG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 10MB!');
+      }
+      return isJPG && isLt2M;
+    },
   }
 }
 </script>
