@@ -13,9 +13,9 @@
         <el-form-item prop="password">
           <el-input v-model="loginForm.password" type="password" auto-complete="off" placeholder="请输入密码" prefix-icon="el-icon-lock" @keyup.enter.native="handleLogin" />
         </el-form-item>
-        <el-form-item>
+        <!-- <el-form-item>
           <el-checkbox v-model="loginForm.rememberMe">记住我</el-checkbox>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item>
           <el-button :loading="loading" size="small" type="primary" style="width:45%;" @click.native.prevent="handleRegister">
             <span v-if="!loading">注册</span>
@@ -41,9 +41,9 @@ export default {
     return {
       Background,
       loginForm: {
-        username: 'duing',
-        password: '123456',
-        rememberMe: true
+        username: undefined,
+        password: undefined,
+        // rememberMe: true
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', message: '用户名不能为空' }],

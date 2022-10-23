@@ -43,7 +43,7 @@
         <div class="card" v-for="(event, index) in tableData" :key="index">
           <div class="card-name">{{event.event_name}}</div>
           <a style="margin: 5px auto;" @click="toDetail(event.id)">
-            <img class="card-img" src="https://whuthycgzh.cloud/app_files/demo/icon.jpg" />
+            <img class="card-img" :src="event.event_img" />
           </a>
           <div class="card-info">{{event.event_information}}</div>
           <div class="card-type">标签：{{event.event_type}}</div>
